@@ -1,10 +1,11 @@
 _hidden_size = 200
 _code_len = 800
-_save_dir_name = 'neural_mask_keyword_predictor'
+_save_dir_name = 'neural_dkr'
 _save_suffix = '1'
 _kp_save_path = 'save/%s/keyword_predictor_%s' % (_save_dir_name, _save_suffix)
 _retrieval_save_path = 'save/%s/response_retrieval_%s' % (_save_dir_name, _save_suffix)
-_log_save_path = 'save/%s/logs.txt' % _save_dir_name
+_log_save_path = 'save/%s/logs/training_logs.txt' % _save_dir_name
+_conversation_save_path = 'save/%s/logs/conversation_logs.txt'
 _w_mat_path = 'save/kg/w_mat.pk'
 _adj_mat_path = 'save/kg/adj_mat.pk'
 _max_epoch = 20

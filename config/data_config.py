@@ -5,7 +5,7 @@ _start_corpus = [x.strip() for x in open('tx_data/start_corpus.txt', 'r').readli
 _max_seq_len = 30
 _num_neg = 20
 _max_turns = 8
-_batch_size = 16 # 64
+_batch_size = 64
 _retrieval_candidates = 1000
 
 data_hparams = {
@@ -84,10 +84,10 @@ corpus_hparams = {
     }
 }
 
-# _test_keywords_path = 'tx_data/train/keywords_vocab.txt'
+_test_keywords_path = 'tx_data/test/keywords_vocab.txt'
 _keywords_path = 'tx_data/train/keywords_vocab.txt'
 _keywords_candi = [x.strip() for x in open(_keywords_path, 'r').readlines()]
-# _test_keywords_candi = [x.strip() for x in open(_test_keywords_path, 'r').readlines()]
+_test_keywords_candi = [x.strip() for x in open(_test_keywords_path, 'r').readlines()]
 _keywords_num = len(_keywords_candi)
 _keywords_dict = {}
 for i in range(_keywords_num):
