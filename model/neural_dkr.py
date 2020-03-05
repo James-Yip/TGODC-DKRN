@@ -527,7 +527,7 @@ class Predictor:
 
     def retrieve_init(self, sess):
         data_batch = self.iterator.get_next()
-        loss, acc, _ = self.forward_retrieval(data_batch)
+        loss, acc, _ = self.forward_response_retrieval(data_batch)
         self.corpus = self.data_config._corpus
         self.corpus_data = tx.data.MonoTextData(self.data_config.corpus_hparams)
         corpus_iterator = tx.data.DataIterator(self.corpus_data)
@@ -558,16 +558,11 @@ class Predictor:
         context_ids = tf.expand_dims(self.vocab.map_tokens_to_ids(self.context_input), 0)
         context_embed = self.embedder(context_ids)
         context_code = self.context_encoder(context_embed, sequence_length=self.context_length_input)[1]
-        context_code = self.prev_predict_layer(context_code)
-        matching_score = self.predict_layer(context_code)
-        tf.add_to_collection('prev_pred_kw_id', tf.cast([-1e8], tf.float32))
-        prev_pred_kw_id = tf.get_collection('prev_pred_kw_id')[-1]
-        context_related_mask, target_guide_mask = tf.map_fn(lambda x: self.generate_keyword_mask(x[0], x[1]),
-                                                            (context_ids, prev_pred_kw_id),
-                                                            dtype=(tf.float32, tf.float32), parallel_iterations=True)
-        tf.get_default_graph().clear_collection('prev_pred_kw_id')
-        matching_score = matching_score - 1 + context_related_mask
-        self.candi_output =tf.nn.top_k(tf.squeeze(matching_score, 0), self.data_config._keywords_num)[1]
+        keyword_score = self.prev_predict_layer(context_code)
+        keyword_score = self.predict_layer(keyword_score)
+        keywords_mask = tf.map_fn(self.generate_keyword_mask, context_ids, dtype=tf.float32, parallel_iterations=True)
+        keyword_score = keyword_score - 1 + keywords_mask
+        self.candi_output =tf.nn.top_k(tf.squeeze(keyword_score, 0), self.data_config._keywords_num)[1]
 
         # retrieve
         self.minor_length_input = tf.placeholder(dtype=tf.int32, shape=(1, 9))
@@ -585,7 +580,7 @@ class Predictor:
         history_code = tf.concat([history_code, embed_code], 1)
         select_corpus = tf.cast(self.corpus_code, dtype=tf.float32)
         feature_code = self.linear_matcher(select_corpus * history_code)
-        self.ans_output = tf.nn.top_k(tf.squeeze(feature_code,1), k=self.data_config._agent_retrieval_candidates)[1]
+        self.ans_output = tf.nn.top_k(tf.squeeze(feature_code,1), k=self.data_config._retrieval_candidates)[1]
 
     def retrieve(self, history_all, sess):
         history, seq_len, turns, context, context_len = history_all
