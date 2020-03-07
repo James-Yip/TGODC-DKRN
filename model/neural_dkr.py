@@ -27,22 +27,12 @@ class Predictor:
         create_logs(self.logs_save_path)
 
         self.build_data_iterator()
-        # build vocab
         self.vocab = self.train_data.vocab(0)
 
         self.build_keyword_predictor_model()
         self.build_response_retrieval_model()
-        #
-        # # build keyword knowledge graph(adjacency matrix) for keyword mask generation
+        # build keyword knowledge graph(adjacency matrix) for keyword mask generation
         self.build_keyword_kg()
-
-        # load keyword knowledge graph(adjacency matrix & weight matrix) for keyword mask generation
-        # self.kg_weight_matrix, self.kg_adjacency_matrix = load_keyword_kg(self.model_config._w_mat_path,
-        #                                                                   self.model_config._adj_mat_path)
-        # self.kg_matrix_size = int(self.kg_adjacency_matrix.shape[0])
-        # self.adj_matrix_size = self.kg_matrix_size
-        # self.vocab_ids_to_adj_matrix_ids_map = get_kg_ids_map(self.data_config._keywords_path,
-        #                                                       self.data_config._vocab_path)
 
     def build_data_iterator(self):
         self.train_data = tx.data.MultiAlignedData(self.data_config.data_hparams['train'])
@@ -52,7 +42,6 @@ class Predictor:
 
     def build_keyword_predictor_model(self):
         with tf.variable_scope(name_or_scope=self.kp_scope_name, reuse=tf.AUTO_REUSE):
-            # self.vocab = self.train_data.vocab(0)
             self.context_encoder = tx.modules.UnidirectionalRNNEncoder(hparams=self.model_config.context_encoder_hparams)
             self.prev_predict_layer = tx.modules.MLPTransformConnector(2 * self.data_config._keywords_num,
                                                                        hparams={"activation_fn": "relu",})
@@ -61,7 +50,6 @@ class Predictor:
                                                     hparams=self.model_config.embedder_hparams)
             self.kw_list = self.vocab.map_tokens_to_ids(tf.convert_to_tensor(self.data_config._keywords_candi))
             self.kw_vocab = tx.data.Vocab(self.data_config._keywords_path)
-            # self.vocab = tx.data.Vocab(self.data_config._vocab_path) # add by yz
 
     def build_response_retrieval_model(self):
         with tf.variable_scope(name_or_scope=self.rr_scope_name, reuse=tf.AUTO_REUSE):
@@ -120,23 +108,9 @@ class Predictor:
         self.train_kg_adjacency_matrix += -1e8
         self.valid_kg_adjacency_matrix += -1e8
         self.test_kg_adjacency_matrix += -1e8
-        # self.kg_adjacency_matrix += float('-inf')
         for idx, keyword in enumerate(keywords_vocab_list):
             stoi_dict[keyword] = idx
             vocab_id_to_adj_matrix_id_dict[int(self.vocab.map_tokens_to_ids_py(keyword))] = idx
-
-        ## save dict for debugging
-        # import json
-        # new_vocab_token_to_id_map_py = {k: str(v) for k, v in self.vocab.token_to_id_map_py.items()}
-        # vocab_id_to_adj_matrix_id_dict = {k: str(v) for k, v in vocab_id_to_adj_matrix_id_dict.items()}
-        # new_kwvocab_token_to_id_map_py = {k: str(v) for k, v in self.kw_vocab.token_to_id_map_py.items()}
-        # with open('./vocab_dict.json', 'w') as f:
-        #     json.dump(new_vocab_token_to_id_map_py, f, indent=4)
-        # with open('./id2id_dict.json', 'w') as f:
-        #     json.dump(vocab_id_to_adj_matrix_id_dict, f, indent=4)
-        # with open('./kwvocab_dict.json', 'w') as f:
-        #     json.dump(new_kwvocab_token_to_id_map_py, f, indent=4)
-        # exit()
 
         self.vocab_ids_to_adj_matrix_ids_map = tf.contrib.lookup.HashTable(
             tf.contrib.lookup.KeyValueTensorInitializer(
@@ -170,21 +144,10 @@ class Predictor:
         self.train_kg_adjacency_matrix = tf.convert_to_tensor(self.train_kg_adjacency_matrix)
         self.valid_kg_adjacency_matrix = tf.convert_to_tensor(self.valid_kg_adjacency_matrix)
         self.test_kg_adjacency_matrix = tf.convert_to_tensor(self.test_kg_adjacency_matrix)
-        # self.train_kg_adjacency_matrix = tf.constant(self.train_kg_adjacency_matrix)
-        # self.valid_kg_adjacency_matrix = tf.constant(self.valid_kg_adjacency_matrix)
-        # self.test_kg_adjacency_matrix = tf.constant(self.test_kg_adjacency_matrix)
-
-
 
     def generate_keyword_mask(self, context_ids):
         """Generate mask to only keep the related keywords' Q-value.
         """
-        # self.kg_adjacency_matrix = tf.cond(pred=tf.equal(tx.global_mode(),tf.estimator.ModeKeys.TRAIN ),
-        #                                                   true_fn=lambda: self.train_kg_adjacency_matrix,
-        #                                                   false_fn=lambda: self.valid_kg_adjacency_matrix)
-        # self.kg_adjacency_matrix = tf.cond(pred=tf.equal(tx.global_mode(),tf.estimator.ModeKeys.EVAL ),
-        #                                                   true_fn=lambda: self.kg_adjacency_matrix,
-        #                                                   false_fn=lambda: self.test_kg_adjacency_matrix)
         self.kg_adjacency_matrix = tf.cond(pred=tf.equal(tx.global_mode(),tf.estimator.ModeKeys.TRAIN ),
                                            true_fn=lambda: self.train_kg_adjacency_matrix,
                                            false_fn=lambda: tf.cond(pred=tf.equal(tx.global_mode(),tf.estimator.ModeKeys.EVAL),
@@ -206,7 +169,6 @@ class Predictor:
         )
         no_related_keywords = tf.equal(num_related_keywords, 0.)
         ones_tensor = tf.ones(shape=[self.adj_matrix_size])
-        # ones_tensor = tf.ones(shape=[self.kg_matrix_size])
         # if no related keywords for current context, keep all keywords' Q-value
         keyword_mask = tf.cond(pred=no_related_keywords,
                                true_fn=lambda: ones_tensor,
@@ -230,7 +192,6 @@ class Predictor:
         return self.vocab_ids_to_adj_matrix_ids_map.lookup(tokens)
 
     def forward_keyword_predictor(self, context_ids, context_length):
-    # def forward_keyword_predictor(self, context_ids, context_length, keywords_mask_ids):
         with tf.variable_scope(name_or_scope=self.kp_scope_name, reuse=tf.AUTO_REUSE):
             context_embed = self.embedder(context_ids)
             context_code = self.context_encoder(context_embed, sequence_length=context_length)[1]
@@ -238,15 +199,11 @@ class Predictor:
             keep_rate = tf.cond(tf.equal(tx.global_mode(), tf.estimator.ModeKeys.TRAIN), lambda: self.drop_rate, lambda:1.0)
             keyword_score = tf.nn.dropout(keyword_score, keep_rate)
             keyword_score = self.predict_layer(keyword_score)
-            # keywords_mask = tf.map_fn(lambda x: tf.sparse_to_dense(x, [self.kw_vocab.size], 1., -1e8, False),
-            #                           keywords_mask_ids, dtype=tf.float32, parallel_iterations=True)[:, 4:]
             keywords_mask = tf.map_fn(self.generate_keyword_mask, context_ids, dtype=tf.float32, parallel_iterations=True)
             keyword_score = keyword_score - 1 + keywords_mask
             return keyword_score
 
     def compute_loss_and_acc(self, batch):
-        # keywords_mask_ids = self.kw_vocab.map_tokens_to_ids(batch['mask_text'])
-        # predicted_keyword_score = self.forward_keyword_predictor(batch['context_text_ids'], batch['context_length'], keywords_mask_ids)
         predicted_keyword_score = self.forward_keyword_predictor(batch['context_text_ids'], batch['context_length'])
 
         label_keywords_ids = self.kw_vocab.map_tokens_to_ids(batch['keywords_text'])
@@ -262,7 +219,7 @@ class Predictor:
         kws = tf.reshape(kws,[-1])
         kws = tf.map_fn(lambda x: self.kw_list[x], kws, dtype=tf.int64)
         kws = tf.reshape(kws,[-1, 5])
-        return loss, acc, kws #, predicted_keyword_score
+        return loss, acc, kws
 
     def predict_keywords(self, batch):
         return self.compute_loss_and_acc(batch)
@@ -302,46 +259,11 @@ class Predictor:
                         cnt_acc.append(acc_)
                     except tf.errors.OutOfRangeError:
                         mean_acc = np.mean(cnt_acc)
-                        # if mean_acc > max_val_acc:
-                        #     max_val_acc = mean_acc
-                        #     self.saver.save(sess, self.model_config._kp_save_path)
-                        logs_loss_acc = 'epoch_id {}, valid acc1={}'.format(epoch_id+1, mean_acc)
-                        add_log(self.logs_save_path, logs_loss_acc)
-                        break
-
-                self.iterator.switch_to_test_data(sess)
-                # cnt_acc = []
-                cnt_acc, cnt_rec1, cnt_rec3, cnt_rec5 = [], [], [], []
-                while True:
-                    try:
-                        # feed = {tx.global_mode(): tf.estimator.ModeKeys.EVAL}
-                        feed = {tx.global_mode(): tf.estimator.ModeKeys.PREDICT}
-                        # acc_ = sess.run(acc, feed_dict=feed)
-                        acc_, kw_ans, kw_labels = sess.run([acc, kws, batch['keywords_text_ids']], feed_dict=feed)
-                        cnt_acc.append(acc_)
-                        rec = [0,0,0,0,0]
-                        sum_kws = 0
-                        for i in range(len(kw_ans)):
-                            sum_kws += sum(kw_labels[i] > 3)
-                            for j in range(5):
-                                if kw_ans[i][j] in kw_labels[i]:
-                                    for k in range(j, 5):
-                                        rec[k] += 1
-                        cnt_rec1.append(rec[0]/sum_kws)
-                        cnt_rec3.append(rec[2]/sum_kws)
-                        cnt_rec5.append(rec[4]/sum_kws)
-                    except tf.errors.OutOfRangeError:
-                        mean_acc = np.mean(cnt_acc)
                         if mean_acc > max_val_acc:
                             max_val_acc = mean_acc
                             self.saver.save(sess, self.model_config._kp_save_path)
-                        logs_loss_acc = 'epoch_id {}, test acc1={}'.format(epoch_id+1, mean_acc)
+                        logs_loss_acc = 'epoch_id {}, valid acc1={}'.format(epoch_id+1, mean_acc)
                         add_log(self.logs_save_path, logs_loss_acc)
-                        logs_loss_acc = 'test_kw acc@1={:.4f}, rec@1={:.4f}, rec@3={:.4f}, rec@5={:.4f}'.format(
-                            np.mean(cnt_acc), np.mean(cnt_rec1), np.mean(cnt_rec3), np.mean(cnt_rec5))
-                        add_log(self.logs_save_path, logs_loss_acc)
-                        # self._logging(logs_loss_acc)
-                        # print('epoch_id {}, valid acc1={}'.format(epoch_id+1, mean_acc))
                         break
 
     def test_keywords(self):
@@ -376,7 +298,6 @@ class Predictor:
                     logs_loss_acc = 'test_kw acc@1={:.4f}, rec@1={:.4f}, rec@3={:.4f}, rec@5={:.4f}'.format(
                         np.mean(cnt_acc), np.mean(cnt_rec1), np.mean(cnt_rec3), np.mean(cnt_rec5))
                     print(logs_loss_acc)
-                    # add_log(self.logs_save_path, logs_loss_acc)
                     break
 
     def forward_response_retrieval(self, batch):
@@ -437,7 +358,6 @@ class Predictor:
             sess.run(tf.local_variables_initializer())
             kw_saver.restore(sess, self.model_config._kp_save_path)
             saver = tf.train.Saver()
-            #saver.restore(sess, self.model_config._retrieval_save_path)
             for epoch_id in range(self.model_config._max_epoch):
                 self.iterator.switch_to_train_data(sess)
                 cur_step = 0
@@ -465,34 +385,6 @@ class Predictor:
                     except tf.errors.OutOfRangeError:
                         mean_acc = np.mean(cnt_acc)
                         logs_loss_acc = 'epoch_id {}, valid acc1={}, kw_acc1={}'.format(epoch_id+1, mean_acc, np.mean(cnt_kwacc))
-                        add_log(self.logs_save_path, logs_loss_acc)
-                        # if mean_acc > max_val_acc:
-                        #     max_val_acc = mean_acc
-                        #     saver.save(sess, self.model_config._retrieval_save_path)
-                        break
-
-                self.iterator.switch_to_test_data(sess)
-                rank_cnt = []
-                cnt_acc, cnt_kwacc = [], []
-                while True:
-                    try:
-                        feed = {tx.global_mode(): tf.estimator.ModeKeys.PREDICT}
-                        acc_, kw_acc_, ranks, labels = sess.run([acc, kw_acc, rank, batch['label']], feed_dict=feed)
-                        for i in range(len(ranks)):
-                            rank_cnt.append(np.where(ranks[i]==labels[i])[0][0])
-                        cnt_acc.append(acc_)
-                        cnt_kwacc.append(kw_acc_)
-                    except tf.errors.OutOfRangeError:
-                        mean_acc = np.mean(cnt_acc)
-                        mean_kwacc = np.mean(cnt_kwacc)
-                        rec = [0,0,0,0,0]
-                        MRR = 0
-                        for rank_ in rank_cnt:
-                            for i in range(5):
-                                rec[i] += (rank_ <= i)
-                            MRR += 1 / (rank_+1)
-                        logs_loss_acc = 'epoch_id {} test acc1={} kw_acc1={} rec1@20={:.4f}, rec3@20={:.4f}, rec5@20={:.4f}, MRR={:.4f}'.format(
-                            epoch_id+1, mean_acc, mean_kwacc, rec[0]/len(rank_cnt), rec[2]/len(rank_cnt), rec[4]/len(rank_cnt), MRR/len(rank_cnt))
                         add_log(self.logs_save_path, logs_loss_acc)
                         if mean_acc > max_val_acc:
                             max_val_acc = mean_acc
@@ -597,7 +489,6 @@ class Predictor:
                                                    self.kw_input: self.data_config._keywords_dict[self.next_kw]})
         flag = 0
         reply = self.corpus[ans[0]]
-        #self.reply_list = []
         for i in ans:
             if i in self.reply_list:  # avoid repeat
                 continue
