@@ -20,6 +20,7 @@ if __name__ == '__main__':
 
     if FLAGS.mode == 'train_kw':
         predictor.train_keywords()
+        predictor.test_keywords()
     if FLAGS.mode == 'test_kw':
         predictor.test_keywords()
     if FLAGS.mode == 'train':
