@@ -21,8 +21,7 @@ data_hparams = {
                 "max_utterance_cnt": 9,
                 "max_seq_length": _max_seq_len,
                 "files": [os.path.join(data_root, '{}/source.txt'.format(stage))],
-                # "vocab_file": os.path.join(data_root, 'vocab.txt'),
-                "vocab_file": os.path.join(data_root, 'all_vocab.txt'),
+                "vocab_file": os.path.join(data_root, 'vocab.txt'),
                 "embedding_init": {
                     "file": os.path.join(data_root, 'embedding.txt'),
                     "dim": 200,
@@ -60,15 +59,6 @@ data_hparams = {
                 "data_type": "int",
                 "data_name": "label"
             },
-            {  # keyword canidate mask
-                "files": [os.path.join(data_root, '{}/candicate_mask.txt'.format(stage))],
-                "vocab_share_with": 0,
-                "embedding_init_share_with": 0,
-                "data_name": "mask",
-                "bos_token": '',
-                "eos_token": '',
-            },
-
         ]
     }
     for stage in ['train','valid','test']
