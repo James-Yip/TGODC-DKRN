@@ -9,18 +9,18 @@ def create_logs(logs_path):
     logs.close()
 
 
-def add_logs(logs_path, logs_contents,):
+def add_logs(logs_path, logs_contents, print_details=True):
     logs = open(logs_path, "a")
     for logs_content in logs_contents:
-        print(logs_content)
-        logs.write(logs_content)
-        logs.write('\n')
+        if print_details:
+            print(logs_content)
+        logs.write(logs_content + '\n')
     logs.close()
 
 
-def add_log(logs_path, logs_content):
+def add_log(logs_path, logs_content, print_details=True):
     logs = open(logs_path, "a")
-    print(logs_content)
-    logs.write(logs_content)
-    logs.write('\n')
+    if print_details:
+        print(logs_content)
+    logs.write(logs_content + '\n')
     logs.close()
