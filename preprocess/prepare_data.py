@@ -4,18 +4,11 @@ import pickle
 import random
 import os
 import shutil
-from kg_utils import build_relatedness_matrix, build_adjacent_matrix, save_matrix
 if not os.path.exists('../tx_data'):
     os.mkdir('../tx_data')
     os.mkdir('../tx_data/train')
     os.mkdir('../tx_data/valid')
     os.mkdir('../tx_data/test')
-
-# import texar
-# if not os.path.exists('convai2/source'):
-#     print('Downloading source ConvAI2 data')
-#     texar.data.maybe_download('https://drive.google.com/file/d/1LPxNIVO52hZOwbV3Zply_ITi2Uacit-V/view?usp=sharing'
-#                                 ,'convai2', extract=True)
 
 shutil.copy('convai2/source/embedding.txt', '../tx_data/embedding.txt')
 dataset = dts_Target()
@@ -63,19 +56,12 @@ for stage in ['train', 'valid', 'test']:
                     sample['kwlist'][i-1]) + '\n')
                 keywords_file.write(' '.join(sample['kwlist'][i]) + '\n')
                 label_file.write('0\n')
-                
+
     source_file.close()
     target_file.close()
     label_file.close()
     keywords_vocab_file.close()
     context_file.close()
-
-    # # build adjacent and relatedness for keyword vocab
-    # adjacent_matrix = build_adjacent_matrix(keywords_list)
-    # relatedness_matrix = build_relatedness_matrix(keywords_list)
-    # save_matrix("../tx_data/{}/adjacent_matrix.txt".format(stage), adjacent_matrix)
-    # save_matrix("../tx_data/{}/relatedness_matrix.txt".format(stage), relatedness_matrix)
-
 
 start_corpus_file.close()
 corpus_file.close()

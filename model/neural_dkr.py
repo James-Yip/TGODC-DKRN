@@ -10,7 +10,6 @@ else:
     from preprocess.data_utils import pad
     from preprocess.data_utils import kw_tokenize
 from utils.log_utils import create_logs, add_logs, add_log
-from utils.kg_utils import get_kg_ids_map, load_keyword_kg
 
 
 class Predictor:
