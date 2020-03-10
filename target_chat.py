@@ -30,7 +30,7 @@ class Target_Chat:
             self._reset()
             reply = self.start_utterance
             add_log(self.conversation_save_path, '-------- Session {} --------'.format(self.current_sessions))
-            add_log(self.conversation_save_path, 'AGENT: {}'.format(reply))
+            add_log(self.conversation_save_path, 'START: {}'.format(reply))
         else:
             self.history.append(user_input)
             source = utter_preprocess(self.history, self.agent.data_config._max_seq_len)
