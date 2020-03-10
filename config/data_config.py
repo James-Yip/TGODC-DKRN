@@ -2,6 +2,8 @@ import os
 data_root = './tx_data'
 _corpus = [x.strip() for x in open('tx_data/corpus.txt', 'r').readlines()]
 _start_corpus = [x.strip() for x in open('tx_data/start_corpus.txt', 'r').readlines()]
+_target_keywords_for_simulation = [x.strip() for x in open('tx_data/target_keywords_for_simulation.txt', 'r').readlines()]
+_start_corpus_for_simulation = [x.strip() for x in open('tx_data/sample_start_corpus.txt', 'r').readlines()]
 _max_seq_len = 30
 _num_neg = 20
 _max_turns = 8

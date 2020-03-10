@@ -1,6 +1,8 @@
 _hidden_size = 200
 _code_len = 200
 _save_path = 'save/retrieval/model_1'
+_conversation_save_path = 'save/retrieval_stgy/logs/conversation_logs.txt'
+_simulation_save_path = 'save/retrieval_stgy/logs/simulation_logs.txt'
 _max_epoch = 10
 
 source_encoder_hparams = {

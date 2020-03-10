@@ -2,6 +2,8 @@ _hidden_size = 200
 _code_len = 800
 _save_path = 'save/matrix/model_1'
 _matrix_save_path = 'save/matrix/matrix_1.pk'
+_conversation_save_path = 'save/matrix/logs/conversation_logs.txt'
+_simulation_save_path = 'save/matrix/logs/simulation_logs.txt'
 _max_epoch = 10
 
 _vocab_path = 'tx_data/vocab.txt'

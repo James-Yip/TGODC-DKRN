@@ -6,8 +6,7 @@ _kp_save_path = 'save/%s/keyword_predictor_%s' % (_save_dir_name, _save_suffix)
 _retrieval_save_path = 'save/%s/response_retrieval_%s' % (_save_dir_name, _save_suffix)
 _log_save_path = 'save/%s/logs/training_logs.txt' % _save_dir_name
 _conversation_save_path = 'save/%s/logs/conversation_logs.txt' % _save_dir_name
-_w_mat_path = 'save/kg/w_mat.pk'
-_adj_mat_path = 'save/kg/adj_mat.pk'
+_simulation_save_path = 'save/%s/logs/simulation_logs.txt' % _save_dir_name
 _max_epoch = 20
 _dropout_rate = 0.5
 

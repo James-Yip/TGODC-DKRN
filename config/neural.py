@@ -2,6 +2,8 @@ _hidden_size = 200
 _code_len = 800
 _save_path = 'save/neural/model_1'
 _neural_save_path = 'save/neural/keyword_1'
+_conversation_save_path = 'save/neural/logs/conversation_logs.txt'
+_simulation_save_path = 'save/neural/logs/simulation_logs.txt'
 _max_epoch = 10
 
 neural_opt_hparams = {

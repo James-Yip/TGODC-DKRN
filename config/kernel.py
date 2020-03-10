@@ -4,6 +4,8 @@ _save_path = 'save/kernel/model_1'
 _kernel_save_path = 'save/kernel/keyword_1'
 _kernel_mu = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.]
 _kernel_sigma = 0.1
+_conversation_save_path = 'save/kernel/logs/conversation_logs.txt'
+_simulation_save_path = 'save/kernel/logs/simulation_logs.txt'
 _max_epoch = 10
 _early_stopping = 2
 
