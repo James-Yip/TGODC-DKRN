@@ -22,7 +22,6 @@ class Target_Chat:
         self.agent.retrieve_init(self.sess)
         create_logs(self.conversation_save_path)
 
-
     def chat(self, user_input=None):
         responses = []
         # if is the beginning of a conversation
@@ -35,7 +34,7 @@ class Target_Chat:
             self.history.append(user_input)
             source = utter_preprocess(self.history, self.agent.data_config._max_seq_len)
             reply = self.agent.retrieve(source, self.sess)
-            add_log(self.conversation_save_path, 'HUMAN: {}'.format(user_input))
+            add_log(self.conversation_save_path, 'HUMAN: {}'.format(user_input), print_details=False)
             add_log(self.conversation_save_path, 'AGENT: {}'.format(reply))
         self.history.append(reply)
         responses.append(reply)
@@ -53,7 +52,6 @@ class Target_Chat:
 
         return responses
 
-
     def _reset(self):
         self.current_turns = 0
         self.current_sessions += 1
@@ -64,24 +62,29 @@ class Target_Chat:
         self.agent.score = 0.
         self.agent.reply_list = []
 
+def init_target_chat(agent_name):
+    config_data = importlib.import_module('config.data_config')
+    config_model = importlib.import_module('config.' + agent_name)
+    model = importlib.import_module('model.' + agent_name)
+    predictor = model.Predictor(config_model, config_data, 'test')
 
-flags = tf.flags
-# supports neural_dkr / kernel / matrix / neural / retrieval / retrieval_stgy
-flags.DEFINE_string('agent', 'neural_dkr', 'The agent type')
-FLAGS = flags.FLAGS
+    print("生成 TGODC-{} Model 实例.................".format(agent_name))
+    target_chat_instance = Target_Chat(predictor,
+                                    config_data._test_keywords_candi,
+                                    config_data._start_corpus,
+                                    config_data._max_turns,
+                                    config_model._conversation_save_path)
+    print("TGODC-{} Model 实例生成完成...............".format(agent_name))
+    return target_chat_instance
 
-config_data = importlib.import_module('config.data_config')
-config_model = importlib.import_module('config.' + FLAGS.agent)
-model = importlib.import_module('model.' + FLAGS.agent)
-predictor = model.Predictor(config_model, config_data, 'test')
-
-# 生成模型实例
-# 这里生成模型实例供 server 导入并调用
-print("生成 TGODC-{} Model 实例.................".format(FLAGS.agent))
-# RMA_model_instance = RMA_model()
-target_chat_instance = Target_Chat(predictor,
-                                   config_data._test_keywords_candi,
-                                   config_data._start_corpus,
-                                   config_data._max_turns,
-                                   config_model._conversation_save_path)
-print("TGODC-{} Model 实例生成完成...............".format(FLAGS.agent))
+if __name__ == '__main__':
+    flags = tf.flags
+    flags.DEFINE_string('agent', 'neural_dkr', 'The agent type, supports neural_dkr / kernel / matrix / neural / retrieval / retrieval_stgy.')
+    flags.DEFINE_integer('times', 10, 'Conversation times.')
+    FLAGS = flags.FLAGS
+    target_chat_instance = init_target_chat(FLAGS.agent)
+    for i in range(FLAGS.times):
+        responses = []
+        target_chat_instance.chat()
+        while len(responses) < 2:
+            responses = target_chat_instance.chat(input('HUMAN: '))
