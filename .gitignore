@@ -10,4 +10,5 @@ __pycache__/
 
 # Data files
 tx_data/
+tx_data_weibo/
 save/
