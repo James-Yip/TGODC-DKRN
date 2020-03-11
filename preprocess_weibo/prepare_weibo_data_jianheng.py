@@ -11,14 +11,14 @@ corpus_size = 5000000 # 用来筛选的语料规模, 因为速度原因先小一
 keywords_min = 2000  # 只保留在语料中出现超过2000次的keyword作为候选的keyword
 keywords_count = 8   # 只保留keyword个数超过8的dialog
 
-if not os.path.exists('../tx_weibo_data'):
-    os.mkdir('../tx_weibo_data')
-    os.mkdir('../tx_weibo_data/train')
-    os.mkdir('../tx_weibo_data/valid')
-    os.mkdir('../tx_weibo_data/test')
+if not os.path.exists('../tx_data_weibo'):
+    os.mkdir('../tx_data_weibo')
+    os.mkdir('../tx_data_weibo/train')
+    os.mkdir('../tx_data_weibo/valid')
+    os.mkdir('../tx_data_weibo/test')
 
 # need to be trained by ourself
-shutil.copy('convai2/source/embedding.txt', '../tx_weibo_data/embedding.txt')
+shutil.copy('convai2/source/embedding.txt', '../tx_data_weibo/embedding.txt')
 
 # dataset = dts_Weibo_Target()
 # dataset.make_dataset()
@@ -26,8 +26,8 @@ shutil.copy('convai2/source/embedding.txt', '../tx_weibo_data/embedding.txt')
 split_corpus = pickle.load(open("corpus.pk","rb"))
 max_utter = 9
 candidate_num = 20
-start_corpus_file = open("../tx_weibo_data/start_corpus.txt", "w")
-corpus_file = open("../tx_weibo_data/corpus.txt", "w")
+start_corpus_file = open("../tx_data_weibo/start_corpus.txt", "w")
+corpus_file = open("../tx_data_weibo/corpus.txt", "w")
 
 from collections import Counter
 keywords = Counter()
@@ -94,7 +94,7 @@ for i, dialog in enumerate(candi_corpus):
 
 
 vocab = list(vocab)
-with open('../tx_weibo_data/vocab.txt','w',encoding='UTF-8') as f:
+with open('../tx_data_weibo/vocab.txt','w',encoding='UTF-8') as f:
     for word in vocab:
         f.write(word + '\n')
 print('save vocab in vocab.txt')
@@ -113,18 +113,18 @@ for id, sess in enumerate(last_corpus):
         # sample['kwlist'].append(keyword_extractor.idf_extract(sess['dialog'][i]))
         new_kwlist = []
         for kw in sess['kwlist'][i]:
-            new_kwlist.append(kw.split('_')[0])		
+            new_kwlist.append(kw.split('_')[0])
         sample['kwlist'].append(sess['kwlist'][i])
     all_data[type].append(sample)
 
 
 for stage in ['train', 'valid', 'test']:
-    source_file = open("../tx_weibo_data/{}/source.txt".format(stage), "w")
-    target_file = open("../tx_weibo_data/{}/target.txt".format(stage), "w")
-    context_file = open("../tx_weibo_data/{}/context.txt".format(stage), "w")
-    keywords_file = open("../tx_weibo_data/{}/keywords.txt".format(stage), "w")
-    label_file = open("../tx_weibo_data/{}/label.txt".format(stage), "w")
-    keywords_vocab_file = open("../tx_weibo_data/{}/keywords_vocab.txt".format(stage), "w")
+    source_file = open("../tx_data_weibo/{}/source.txt".format(stage), "w")
+    target_file = open("../tx_data_weibo/{}/target.txt".format(stage), "w")
+    context_file = open("../tx_data_weibo/{}/context.txt".format(stage), "w")
+    keywords_file = open("../tx_data_weibo/{}/keywords.txt".format(stage), "w")
+    label_file = open("../tx_data_weibo/{}/label.txt".format(stage), "w")
+    keywords_vocab_file = open("../tx_data_weibo/{}/keywords_vocab.txt".format(stage), "w")
     keywords_list = []
     corpus = []
     keywords_counter = Counter()
@@ -154,7 +154,7 @@ for stage in ['train', 'valid', 'test']:
                     sample['kwlist'][i-1]) + '\n')
                 keywords_file.write(' '.join(sample['kwlist'][i]) + '\n')
                 label_file.write('0\n')
-                
+
     source_file.close()
     target_file.close()
     label_file.close()

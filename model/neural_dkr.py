@@ -3,7 +3,7 @@ from texar.module_base import ModuleBase
 import tensorflow as tf
 import numpy as np
 import os
-if os.environ['is_weibo'] == '1':
+if os.environ['is_weibo'] == 'True':
     from preprocess_weibo.data_utils import pad
     from preprocess_weibo.data_utils import kw_tokenize
 else:
@@ -59,20 +59,20 @@ class Predictor:
             self.linear_matcher = tx.modules.MLPTransformConnector(1)
 
     def build_keyword_kg(self):
-        if os.environ['is_weibo'] == '1':
-            with open("./tx_weibo_data/test/context.txt", "r") as f:
+        if os.environ['is_weibo'] == 'True':
+            with open("./tx_data_weibo/test/context.txt", "r") as f:
                 train_context_keywords_list = [x.strip().split() for x in f.readlines()]
-            with open("./tx_weibo_data/test/keywords.txt", "r") as f:
+            with open("./tx_data_weibo/test/keywords.txt", "r") as f:
                 train_next_keywords_list = [x.strip().split() for x in f.readlines()]
 
-            with open("./tx_weibo_data/valid/context.txt", "r") as f:
+            with open("./tx_data_weibo/valid/context.txt", "r") as f:
                 valid_context_keywords_list = [x.strip().split() for x in f.readlines()]
-            with open("./tx_weibo_data/valid/keywords.txt", "r") as f:
+            with open("./tx_data_weibo/valid/keywords.txt", "r") as f:
                 valid_next_keywords_list = [x.strip().split() for x in f.readlines()]
 
-            with open("./tx_weibo_data/test/context.txt", "r") as f:
+            with open("./tx_data_weibo/test/context.txt", "r") as f:
                 test_context_keywords_list = [x.strip().split() for x in f.readlines()]
-            with open("./tx_weibo_data/test/keywords.txt", "r") as f:
+            with open("./tx_data_weibo/test/keywords.txt", "r") as f:
                 test_next_keywords_list = [x.strip().split() for x in f.readlines()]
         else:
             with open("./tx_data/train/context.txt", "r") as f:

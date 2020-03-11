@@ -27,7 +27,7 @@ class dts_Weibo_Target(dts_Weibo_ConvAI2):
                 # counter.update(split_words_seq_only(uttr))
         print('total vocab count: ', len(counter.items()))
         vocab = [token for token, times in sorted(list(counter.items()), key=lambda x: (-x[1], x[0]))]
-        with open('../tx_weibo_data/vocab.txt','w') as f:
+        with open('../tx_data_weibo/vocab.txt','w') as f:
             for word in vocab:
                 f.write(word + '\n')
         print('save vocab in vocab.txt')
