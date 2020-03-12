@@ -24,7 +24,7 @@ pip install -r requirements.txt
 ## Usage
 
 ### Data Preparation
-#TODO
+We conduct our experiments on the Target-Guided PersonaChat Dataset(TGPC) proposed by ([Tang et al. 2019](https://arxiv.org/abs/1905.11553)), and our proposed Chinese Weibo Conversation Dataset(CWC).  
 Download the processed data([TGPC](https://drive.google.com/open?id=1Q4pRpFsxap2vqZ83mmMBpTNPnYpPxLHT), [CWC](https://drive.google.com/open?id=1NYBLxkLnGRNv720SLIcQyX7Um6rbxsAc)) and unzip them into the root directory of this code repository.
 
 For the data preprocessing details, you could see the code inside the `preprocess` and `preprocess_weibo` directories.
@@ -49,6 +49,8 @@ python train.py --mode train --agent retrieval
 python train.py --mode test --agent retrieval
 ```
 Note: the retrieval agent and the retrieval_stgy agent share the same retrieval module. You only need to train one of them.
+
+In addition, we provide a checkpoint of our DKRN agent trained on TGPC dataset. If you wanna use it, download the [DKRN checkpoint](https://drive.google.com/open?id=1OSkxSyWrMH_AanbWq4GodO896ll1DfDo) and unzip it into the `save/` directory(if `save` directory doesn't exist in the root directory, just create a directory named `save`).
 
 ### Target-guided Conversation
 
