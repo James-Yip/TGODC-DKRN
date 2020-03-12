@@ -25,6 +25,9 @@ pip install -r requirements.txt
 
 ### Data Preparation
 #TODO
+Download the processed data([TGPC](https://drive.google.com/open?id=1Q4pRpFsxap2vqZ83mmMBpTNPnYpPxLHT), [CWC](https://drive.google.com/open?id=1NYBLxkLnGRNv720SLIcQyX7Um6rbxsAc)) and unzip them into the root directory of this code repository.
+
+For the data preprocessing details, you could see the code inside the `preprocess` and `preprocess_weibo` directories.
 
 ### Turn-level Supervised Learning
 
@@ -49,7 +52,7 @@ Note: the retrieval agent and the retrieval_stgy agent share the same retrieval 
 
 ### Target-guided Conversation
 
-After turn-level training, you can start target-guided conversation (human evaluation) with our DKRN agent.
+After turn-level training, you can start target-guided conversation with our DKRN agent.
 ```shell
 python target_chat.py --agent neural_dkr --times 3
 ```
