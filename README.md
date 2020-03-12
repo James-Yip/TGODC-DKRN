@@ -13,7 +13,7 @@ Jinghui Qin, Zheng Ye, Jianheng Tang, Xiaodan Liang; AAAI 2020
 - `tensorflow-gpu==1.14`
 - `texar==0.2.1`
 - `tqdm==4.36.1`
-- `thulac==0.2.0`([Texar](https://github.com/asyml/texar))
+- `thulac==0.2.0`
 
 To install the required packages, run:
 
