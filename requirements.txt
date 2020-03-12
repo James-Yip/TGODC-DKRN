@@ -1,5 +1,5 @@
 nltk==3.4.5
-tensorflow-gpu==1.14
+tensorflow-gpu==1.15.2
 texar==0.2.1
 tqdm==4.36.1
 thulac==0.2.0
