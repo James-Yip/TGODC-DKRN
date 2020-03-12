@@ -1,6 +1,7 @@
 import tensorflow as tf
 import importlib
 import random
+import os
 from preprocess.data_utils import utter_preprocess, is_reach_goal
 from utils.log_utils import create_logs, add_log
 
@@ -38,6 +39,7 @@ class Target_Chat:
             add_log(self.conversation_save_path, 'AGENT: {}'.format(reply))
         self.history.append(reply)
         responses.append(reply)
+        self.current_turns += 1
 
         # if the last two utterances contain target keyword
         if is_reach_goal(' '.join(self.history[-2:]), self.target_keyword):
@@ -62,9 +64,17 @@ class Target_Chat:
         self.agent.score = 0.
         self.agent.reply_list = []
 
-def init_target_chat(agent_name):
-    config_data = importlib.import_module('config.data_config')
-    config_model = importlib.import_module('config.' + agent_name)
+def init_target_chat(agent_name, dataset):
+    # Target-Guided PersonaChat Dataset
+    if dataset == 'TGPC':
+        config_dir = 'config.'
+        os.environ['is_weibo'] = 'False'
+    # Chinese Weibo Conversation Dataset
+    elif dataset == 'CWC':
+        config_dir = 'config_weibo.'
+        os.environ['is_weibo'] = 'True'
+    config_data = importlib.import_module(config_dir + 'data_config')
+    config_model = importlib.import_module(config_dir + agent_name)
     model = importlib.import_module('model.' + agent_name)
     predictor = model.Predictor(config_model, config_data, 'test')
 
@@ -79,10 +89,12 @@ def init_target_chat(agent_name):
 
 if __name__ == '__main__':
     flags = tf.flags
-    flags.DEFINE_string('agent', 'neural_dkr', 'The agent type, supports neural_dkr / kernel / matrix / neural / retrieval / retrieval_stgy.')
+    flags.DEFINE_string('dataset', 'TGPC', 'The dataset, supports TGPC / CWC.')
+    flags.DEFINE_string('agent', 'neural_dkr', 'The agent type, \
+        supports neural_dkr / kernel / matrix / neural / retrieval / retrieval_stgy.')
     flags.DEFINE_integer('times', 10, 'Conversation times.')
     FLAGS = flags.FLAGS
-    target_chat_instance = init_target_chat(FLAGS.agent)
+    target_chat_instance = init_target_chat(FLAGS.agent, FLAGS.dataset)
     for i in range(FLAGS.times):
         responses = []
         target_chat_instance.chat()

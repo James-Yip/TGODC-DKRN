@@ -1,6 +1,7 @@
 import tensorflow as tf
 import importlib
 import random
+import os
 from tqdm import tqdm
 from preprocess.data_utils import utter_preprocess, is_reach_goal
 from model import retrieval
@@ -105,15 +106,26 @@ class Target_Simulation():
 
 if __name__ == '__main__':
     flags = tf.flags
-    flags.DEFINE_string('agent', 'neural_dkr', 'The agent type, supports neural_dkr / kernel / matrix / neural / retrieval / retrieval_stgy.')
+    flags.DEFINE_string('dataset', 'TGPC', 'The dataset, supports TGPC / CWC.')
+    flags.DEFINE_string('agent', 'neural_dkr', 'The agent type, \
+        supports neural_dkr / kernel / matrix / neural / retrieval / retrieval_stgy.')
     flags.DEFINE_integer('times', 500, 'Simulation times.')
     flags.DEFINE_boolean('use_fixed_start_corpus', True, 'Whether to use fixed start_utterances.')
     flags.DEFINE_boolean('print_details', True, 'Whether to print simulation details or not.')
     FLAGS = flags.FLAGS
 
-    config_data = importlib.import_module('config.data_config')
-    config_model = importlib.import_module('config.' + FLAGS.agent)
-    config_retrieval = importlib.import_module('config.retrieval')
+    # Target-Guided PersonaChat Dataset
+    if FLAGS.dataset == 'TGPC':
+        config_dir = 'config.'
+        os.environ['is_weibo'] = 'False'
+    # Chinese Weibo Conversation Dataset
+    elif FLAGS.dataset == 'CWC':
+        config_dir = 'config_weibo.'
+        os.environ['is_weibo'] = 'True'
+
+    config_data = importlib.import_module(config_dir + 'data_config')
+    config_model = importlib.import_module(config_dir + FLAGS.agent)
+    config_retrieval = importlib.import_module(config_dir + 'retrieval')
     model = importlib.import_module('model.' + FLAGS.agent)
 
     target_simulation_instance = Target_Simulation(model, config_model, config_retrieval, config_data)
