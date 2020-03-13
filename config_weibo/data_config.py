@@ -70,7 +70,7 @@ corpus_hparams = {
     "shuffle": False,
     "dataset":{
         "max_seq_length": _max_seq_len,
-        "files": [os.path.join(data_root, 'corpus.txt')],
+        "files": [os.path.join(data_root, 'corpus_small.txt')],
         "vocab_file": os.path.join(data_root, 'vocab.txt'),
         "data_name": "corpus"
     }
