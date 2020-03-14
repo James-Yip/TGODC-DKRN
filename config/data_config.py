@@ -66,7 +66,7 @@ data_hparams = {
 
 
 corpus_hparams = {
-    "batch_size": _batch_size*2,
+    "batch_size": _batch_size*300,
     "shuffle": False,
     "dataset":{
         "max_seq_length": _max_seq_len,
