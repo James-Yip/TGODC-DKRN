@@ -4,23 +4,20 @@ import random
 import os
 from preprocess.data_utils import utter_preprocess, is_reach_goal
 from utils.log_utils import create_logs, add_log
+import time
 
 class Target_Chat:
-    def __init__(self,
-                 agent,
-                 target_set,
-                 start_corpus,
-                 max_turns,
-                 conversation_save_path):
-        self.agent = agent
-        self.target_set = target_set
-        self.start_corpus = start_corpus
-        self.max_turns = max_turns
-        self.conversation_save_path = conversation_save_path
-        self.current_sessions = 0
-
+    def __init__(self, model, config_model, config_data):
+        self.agent = model.Predictor(config_model, config_data, 'test')
         self.sess = tf.Session(config=self.agent.gpu_config)
         self.agent.retrieve_init(self.sess)
+
+        self.target_set = config_data._target_keywords_for_simulation
+        self.start_corpus = config_data._start_corpus
+        self.max_turns = config_data._max_turns
+        self.conversation_save_path = config_model._conversation_save_path
+        self.current_sessions = 0
+
         create_logs(self.conversation_save_path)
 
     def chat(self, user_input=None):
@@ -73,18 +70,19 @@ def init_target_chat(agent_name, dataset):
     elif dataset == 'CWC':
         config_dir = 'config_weibo.'
         os.environ['is_weibo'] = 'True'
+
     config_data = importlib.import_module(config_dir + 'data_config')
     config_model = importlib.import_module(config_dir + agent_name)
     model = importlib.import_module('model.' + agent_name)
     predictor = model.Predictor(config_model, config_data, 'test')
 
-    print("生成 TGODC-{} Model 实例.................".format(agent_name))
-    target_chat_instance = Target_Chat(predictor,
-                                    config_data._test_keywords_candi,
-                                    config_data._start_corpus,
-                                    config_data._max_turns,
-                                    config_model._conversation_save_path)
-    print("TGODC-{} Model 实例生成完成...............".format(agent_name))
+    init_start_time = time.time()
+    print("生成 TGODC-{}-{} Model 实例.................".format(agent_name, dataset))
+    target_chat_instance = Target_Chat(model, config_model, config_data)
+    print("TGODC-{}-{} Model 实例生成完成...............".format(agent_name, dataset))
+    init_end_time = time.time()
+    print('初始化花费时间: {:.2f}s'.format(init_end_time - init_start_time))
+
     return target_chat_instance
 
 if __name__ == '__main__':
