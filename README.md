@@ -8,18 +8,25 @@ Jinghui Qin, Zheng Ye, Jianheng Tang, Xiaodan Liang; AAAI 2020
 ## Model Overview
 ![DKRN](./DKRN.jpg)
 
-## Requirement
-- `nltk==3.4.5`
-- `tensorflow-gpu==1.14`
-- `texar==0.2.1`
-- `tqdm==4.36.1`
-- `thulac==0.2.0`
+## Prerequisites
+Create virtural environment (recommended):
+```shell
+conda create -n TGODC python=3.6
+source activate TGODC
+```
 
-To install the required packages, run:
-
+Install the required packages:
 ```shell
 pip install -r requirements.txt
 ```
+
+Install Texar locally:
+```shell
+cd texar-0.2.1
+pip install .
+```
+
+Note: make sure that your environment has installed **cuda 10.0**.
 
 ## Usage
 
