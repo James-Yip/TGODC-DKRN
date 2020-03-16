@@ -5,12 +5,14 @@ FROM tensorflow/tensorflow:1.14.0-gpu-py3
 RUN pip install nltk==3.4.5 tqdm==4.36.1 thulac==0.2.0 flask \
     -i https://pypi.tuna.tsinghua.edu.cn/simple
 RUN echo "import nltk; nltk.download('wordnet_ic')" | python
+RUN echo "import nltk; nltk.download('punkt')" | python
 
 # Set the working directory.
 WORKDIR /TGODC-DKRN
 
 # Copy files from your host to your image filesystem.
 COPY . .
+# RUN mv ./nltk_data ~
 
 # Install Texar locally.
 RUN cd texar-0.2.1 && pip install .
