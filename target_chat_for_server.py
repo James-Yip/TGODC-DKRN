@@ -23,32 +23,31 @@ class Target_Chat:
         create_logs(self.conversation_save_path)
 
     def chat(self, user_history=[]):
-        print(user_history)
         responses = []
         # if is the beginning of a conversation
         if len(user_history) == 0:
             self._reset()
             reply = self.start_utterance
-            add_log(self.conversation_save_path, '-------- Session {} --------'.format(self.current_sessions))
-            add_log(self.conversation_save_path, 'START: {}'.format(reply))
+            add_log(self.conversation_save_path, '-------- Session {} --------'.format(self.current_sessions), print_details=False)
+            add_log(self.conversation_save_path, 'START: {}'.format(reply), print_details=False)
         else:
             user_input = user_history[-1]
             source = utter_preprocess(user_history, self.agent.data_config._max_seq_len)
             reply = self.agent.retrieve(source, self.sess)
             add_log(self.conversation_save_path, 'HUMAN: {}'.format(user_input), print_details=False)
-            add_log(self.conversation_save_path, 'AGENT: {}'.format(reply))
+            add_log(self.conversation_save_path, 'AGENT: {}'.format(reply), print_details=False)
         responses.append(reply)
         self.current_turns += 1
 
         # if the last two utterances contain target keyword
         if is_reach_goal(' '.join(user_history[-2:]), self.target_keyword):
             end_message = '[SUCCESS] target: \'{}\'.'.format(self.target_keyword)
-            add_log(self.conversation_save_path, end_message)
+            add_log(self.conversation_save_path, end_message, print_details=False)
             responses.append(end_message)
         # if is out of the max dialogue turn
         elif self.current_turns > self.max_turns:
             end_message = '[FAIL] out of the max dialogue turns, target: \'{}\'.'.format(self.target_keyword)
-            add_log(self.conversation_save_path, end_message)
+            add_log(self.conversation_save_path, end_message, print_details=False)
             responses.append(end_message)
 
         return responses
