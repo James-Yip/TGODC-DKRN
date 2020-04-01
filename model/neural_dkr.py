@@ -60,9 +60,9 @@ class Predictor:
 
     def build_keyword_kg(self):
         if os.environ['is_weibo'] == 'True':
-            with open("./tx_data_weibo/test/context.txt", "r") as f:
+            with open("./tx_data_weibo/train/context.txt", "r") as f:
                 train_context_keywords_list = [x.strip().split() for x in f.readlines()]
-            with open("./tx_data_weibo/test/keywords.txt", "r") as f:
+            with open("./tx_data_weibo/train/keywords.txt", "r") as f:
                 train_next_keywords_list = [x.strip().split() for x in f.readlines()]
 
             with open("./tx_data_weibo/valid/context.txt", "r") as f:
